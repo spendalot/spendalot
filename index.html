@@ -1,22 +1,12 @@
-<!--
-@license
-Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="generator" content="Polymer Starter Kit">
+    <meta name="generator" content="Spendalot App">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>My App</title>
-    <meta name="description" content="My App description">
+    <title>Spendalot App</title>
+    <meta name="description" content="Spendalot App description">
 
     <!--
       The `<base>` tag below is present to support two advanced deployment options:
@@ -40,12 +30,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="My App">
+    <meta name="application-name" content="Spendalot App">
 
     <!-- Add to homescreen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="My App">
+    <meta name="apple-mobile-web-app-title" content="Spendalot App">
 
     <!-- Homescreen icons -->
     <link rel="apple-touch-icon" href="images/manifest/icon-48x48.png">
@@ -71,23 +61,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       * to indicate the path from which you'll be serving, including leading
       * and trailing slashes (e.g., `/my-app/`).
       */
-      window.MyAppGlobals = { rootPath: '/' };
+      // window.MyAppGlobals = { rootPath: '/' };
 
       // Load and register pre-caching Service Worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('service-worker.js', {
-            scope: MyAppGlobals.rootPath
+            scope: '/',
           });
         });
       }
+
+      window.process = { env: { NODE_ENV: 'production' } };
     </script>
-
-    <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
-    <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-
-    <!-- Load your application shell -->
-    <script type="module" src="src/my-app.js"></script>
 
     <!-- Add any global styles for body, document, etc. -->
     <style>
@@ -97,14 +83,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         line-height: 1.5;
         min-height: 100vh;
         background-color: #eeeeee;
+        -webkit-font-smoothing: antialiased;
       }
     </style>
   </head>
   <body>
-    <my-app></my-app>
+    <spendalot-app appTitle="Spendalot App"></spendalot-app>
     <noscript>
       Please enable JavaScript to view this website.
     </noscript>
-    <!-- Built with love using Polymer Starter Kit -->
+    <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
+    <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    
+    <!-- Load your application shell -->
+    <script type="module" src="src/components/spendalot-app.js" crossorigin></script>
   </body>
 </html>

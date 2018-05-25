@@ -6,6 +6,7 @@
   "license": "BSD-3-Clause",
   "repository": "Polymer/polymer-starter-kit",
   "scripts": {
+    "debug": "polymer serve -p 3000",
     "start": "polymer serve",
     "build": "polymer build",
     "lint": "polymer lint",
@@ -13,16 +14,16 @@
     "test:integration": "polymer build # test that psk builds without error with the CLI"
   },
   "dependencies": {
-    "@polymer/app-layout": "^3.0.0-pre.15",
-    "@polymer/app-route": "^3.0.0-pre.15",
-    "@polymer/iron-flex-layout": "^3.0.0-pre.15",
-    "@polymer/iron-iconset-svg": "^3.0.0-pre.15",
-    "@polymer/iron-media-query": "^3.0.0-pre.15",
-    "@polymer/iron-pages": "^3.0.0-pre.15",
-    "@polymer/iron-selector": "^3.0.0-pre.15",
-    "@polymer/paper-icon-button": "^3.0.0-pre.15",
+    "@polymer/app-layout": "^3.0.0-pre.19",
+    "@polymer/iron-iconset-svg": "^3.0.0-pre.19",
+    "@polymer/lit-element": "^0.5.1",
+    "@polymer/paper-icon-button": "^3.0.0-pre.19",
     "@polymer/polymer": "^3.0.0",
-    "@webcomponents/webcomponentsjs": "^2.0.0"
+    "@webcomponents/webcomponentsjs": "^2.0.0",
+    "pwa-helpers": "^0.8.2",
+    "redux": "^4.0.0",
+    "redux-thunk": "^2.2.0",
+    "reselect": "^3.0.1"
   },
   "devDependencies": {
     "polymer-cli": "^1.7.1",
