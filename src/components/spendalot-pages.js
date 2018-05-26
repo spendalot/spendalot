@@ -6,11 +6,11 @@ import {
 } from '@polymer/lit-element';
 import { FlattenedNodesObserver } from '@polymer/polymer/lib/utils/flattened-nodes-observer.js';
 
-import { store } from '../store.js';
+import { store, connectStore } from '../store.js';
 
 console.time('pages');
 
-class SpendalotPages extends store(LitElement) {
+class SpendalotPages extends connectStore(LitElement) {
   _render({
     page,
   }) {
@@ -19,8 +19,6 @@ class SpendalotPages extends store(LitElement) {
       :host {
         display: block;
         box-sizing: border-box;
-    
-        --spendalot-app-primary-color: #2779ff;
       }
     
       * {

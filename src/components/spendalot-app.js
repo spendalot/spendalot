@@ -4,17 +4,25 @@ import {
   html,
   LitElement,
 } from '@polymer/lit-element';
-
-import '@polymer/app-layout/app-header/app-header.js';
-import '@polymer/app-layout/app-toolbar/app-toolbar.js';
 import { setPassiveTouchGestures } from '@polymer/polymer/lib/utils/settings.js';
 
-import { store } from '../store.js';
+// import '@polymer/app-layout/app-header/app-header.js';
+import '@polymer/app-layout/app-toolbar/app-toolbar.js';
+
+import { installRouter } from 'pwa-helpers/router.js';
+import { installOfflineWatcher } from 'pwa-helpers/network.js';
+
+import '@polymer/paper-icon-button/paper-icon-button.js';
+
+import { store, connectStore } from '../store.js';
+import { navigate, updateOffline } from '../actions/app.js';
+import './spendalot-icons.js';
 import './spendalot-pages.js';
+import './spendalot-footer.js';
 
 console.time('app');
 
-class SpendalotApp extends store(LitElement) {
+class SpendalotApp extends connectStore(LitElement) {
   _render({
     appTitle,
 
@@ -26,23 +34,47 @@ class SpendalotApp extends store(LitElement) {
         display: block;
         box-sizing: border-box;
 
-        --spendalot-app-primary-color: #2779ff;
+        --spendalot-app-primary-color: #fff;
+        --spendalot-app-primary-text-color: #2779ff;
       }
 
       * {
         box-sizing: border-box;
       }
 
+      header {
+        display: flex;
+        flex-direction: column;
+
+        width: 100%;
+        height: 100%;
+      }
+
       app-toolbar {
         background-color: var(--spendalot-app-primary-color);
-        color: #fff;
+        color: var(--spendalot-app-primary-text-color);
+      }
+      app-toolbar > paper-icon-button {
+        margin: 0 8px 0 0;
+
+        --paper-icon-button-ink-color: var(--spendalot-app-primary-text-color);
+      }
+
+      main {
+        min-height: 100vh;
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
       }
     </style>
 
     <!-- Header -->
-    <app-header>
-      <app-toolbar>${appTitle}</app-toolbar>
-    </app-header>
+    <header fixed>
+      <app-toolbar>
+        <paper-icon-button alt="menu" icon="app:menu"></paper-icon-button>
+        <div main-title>${appTitle}</div>
+      </app-toolbar>
+    </header>
 
     <main>
       <spendalot-pages selectedPage="${__selectedPage}">
@@ -51,6 +83,10 @@ class SpendalotApp extends store(LitElement) {
         <div page="page-3">page 3</div>
       </spendalot-pages>
     </main>
+
+    <spendalot-footer>
+      <div>Build with ❤️ and Lit-Element</div>
+    </spendalot-footer>
     `;
   }
 
@@ -58,25 +94,27 @@ class SpendalotApp extends store(LitElement) {
     return {
       appTitle: String,
 
-      __selectedPage: {
-        type: String,
-        readonly: true,
-      },
+      __selectedPage: String,
+      __offline: Boolean,
+      __snackbarOpened: Boolean,
     };
   }
 
   constructor() {
     super();
     setPassiveTouchGestures(true);
-
-    this.__selectedPage = this.__selectedPage == null
-      ? 'page-1'
-      : this.__selectedPage;
   }
 
   _firstRendered() {
     console.debug('_firstRendered');
     console.timeEnd('app');
+
+    installRouter((location) => {
+      store.dispatch(navigate(window.decodeURIComponent(window.location.pathname)));
+    });
+    installOfflineWatcher((offline) => {
+      store.dispatch(updateOffline(offline));
+    });
   }
 
   _didRender(props, changed) {
@@ -85,6 +123,10 @@ class SpendalotApp extends store(LitElement) {
 
   _stateChanged(state) {
     console.debug('_stateChanged', state);
+
+    this.__selectedPage = state.app.page;
+    this.__offline = state.app.offline;
+    this.__snackbarOpened = state.app.snackbarOpened;
   }
 
   get pages() {
