@@ -58,6 +58,10 @@ class SpendalotFooter extends LitElement {
     return {
     };
   }
+
+  _firstRendered() {
+    console.timeEnd('footer');
+  }
 }
 
 window.customElements.define('spendalot-footer', SpendalotFooter);

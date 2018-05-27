@@ -36,6 +36,7 @@ class SpendalotApp extends connectStore(LitElement) {
 
         --spendalot-app-primary-color: #fff;
         --spendalot-app-primary-text-color: #2779ff;
+        --spendalot-app-primary-border-radius: 20px;
       }
 
       * {
@@ -69,18 +70,17 @@ class SpendalotApp extends connectStore(LitElement) {
     </style>
 
     <!-- Header -->
-    <header fixed>
+    <header>
       <app-toolbar>
         <paper-icon-button alt="menu" icon="app:menu"></paper-icon-button>
         <div main-title>${appTitle}</div>
       </app-toolbar>
+      <app-toolbar></app-toolbar>
     </header>
 
     <main>
       <spendalot-pages selectedPage="${__selectedPage}">
-        <div page="page-1">page 1</div>
-        <div page="page-2">page 2</div>
-        <div page="page-3">page 3</div>
+        <spendalot-dashboard page="dashboard"></spendalot-dashboard>
       </spendalot-pages>
     </main>
 

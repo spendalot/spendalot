@@ -15,9 +15,10 @@ function updateState(type, data) {
 function loadPage(page) {
   return async (dispatch) => {
     switch (page) {
-      case 'page-1': {
-        // await import('../components/page-1.js');
-        console.debug('lazy-import page-1 here...');
+      case 'dashboard': {
+        await import('../components/spendalot-dashboard.js');
+        console.debug('spendalot-dashboard lazy imported');
+
         break;
       }
       default: {
@@ -34,7 +35,7 @@ function loadPage(page) {
 
 export function navigate(path) {
   return async (dispatch) => {
-    const page = path === '/' ? 'page-1' : path.slice(1);
+    const page = path === '/' ? 'dashboard' : path.slice(1);
 
     dispatch(loadPage(page));
   };
