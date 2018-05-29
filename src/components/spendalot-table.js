@@ -150,9 +150,11 @@ class SpendalotTable extends LitElement {
       tbody > tr > td > div > paper-checkbox {
         --paper-checkbox-label-color: currentColor;
       }
-      tbody > tr.row-selected,
-      tbody > tr:hover {
+      tbody > tr.row-selected {
         background-color: #eee;
+      }
+      tbody > tr:hover {
+        background-color: rgba(0, 0, 0, .15);
       }
       tbody > tr.row-selected:hover {
         background-color: rgba(0, 0, 0, .2);
@@ -442,3 +444,5 @@ class SpendalotTable extends LitElement {
 }
 
 window.customElements.define('spendalot-table', SpendalotTable);
+
+// TODO: Yet to implement better sorting algo for other data types like Date
