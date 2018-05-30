@@ -15,6 +15,7 @@ import '@polymer/iron-icon/iron-icon.js';
 
 import '@polymer/paper-checkbox/paper-checkbox.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
+import '@polymer/paper-tooltip/paper-tooltip.js';
 
 import './spendalot-icons.js';
 
@@ -24,9 +25,10 @@ class SpendalotTable extends LitElement {
   _render({
     tableTitle,
     tableData,
+    tableDataDescription,
 
-    __perPage,
-    __pageNumber,
+    perPage,
+    pageNumber,
     __rowSelected,
   }) {
     const firstProp = tableData[0];
@@ -36,8 +38,8 @@ class SpendalotTable extends LitElement {
     //     && (typeof firstProp[n] === 'number' || !isNaN(firstProp[n])));
     const cachedPropCls = firstPropKey.map(n => typeof firstProp[n] === 'number');
     const tableDataLen = tableData.length;
-    const firstItem = __pageNumber * __perPage;
-    const lastItem = firstItem + __perPage;
+    const firstItem = pageNumber * perPage;
+    const lastItem = firstItem + perPage;
     const itemsToRender = tableData.slice(firstItem, lastItem);
 
     return html`
@@ -87,6 +89,12 @@ class SpendalotTable extends LitElement {
         transition: opacity 150ms cubic-bezier(0, 0, .4, 1);
       }
 
+      .content-container {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+      }
+
       table,
       td {
         border-collapse: collapse;
@@ -119,6 +127,9 @@ class SpendalotTable extends LitElement {
       tr > td > div.is-number {
         justify-content: flex-end;
       }
+      thead > tr > td > div.thead__cell.show-sorting {
+        color: #000;
+      }
       thead > tr > td > div.thead__cell > iron-icon {
         top: -2px;
         margin: 0 0 0 6px;
@@ -133,6 +144,7 @@ class SpendalotTable extends LitElement {
       }
       thead > tr > td > div.thead__cell.show-sorting > iron-icon,
       thead > tr > td > div.thead__cell.show-sorting.is-number > iron-icon {
+        color: #000;
         opacity: 1;
       }
       thead > tr > td > div.thead__cell.show-sorting.show-sorting-reversed > iron-icon,
@@ -177,6 +189,7 @@ class SpendalotTable extends LitElement {
         margin: 0 0 0 30px;
       }
       .table__footer > .actions {
+        min-width: calc(40px * 2 + 8px + (44px - (40px - 24px) / 2));
         margin: 0 0 0 calc(44px - (40px - 24px) / 2);
       }
       .table__footer > .actions > paper-icon-button {
@@ -197,43 +210,49 @@ class SpendalotTable extends LitElement {
         <div></div>`
     }</div>
 
-    <table on-click="${ev => this.tableSelected(ev)}">
-      <thead>
-        <tr>${repeat(Object.keys(firstProp), (n, i) => {
-          const sortIcon = html`<iron-icon alt="sort by value"
-            icon="app:arrow-upward"></iron-icon>`;
+    <div class="content-container">
+      <table on-click="${ev => this.tableSelected(ev)}">
+        <thead>
+          <tr>${repeat(Object.keys(firstProp), (n, i) => {
+            const sortIcon = html`<iron-icon alt="sort by value"
+              icon="app:arrow-upward"></iron-icon>`;
+            const theadId = `thead-id__${n.replace(/\W/gi, '-')}`;
 
-          return html`<td>
-            <div class$="thead__cell ${cachedPropCls[i] ? 'is-number' : ''}"
-              data-row-thead-cell$="${n}">${
-              i === 0
-                ? html`<paper-checkbox>${n}</paper-checkbox>${sortIcon}`
-                : typeof tableData[0][n] === 'number'
-                  ? html`${sortIcon}${n}`
-                  : html`${n}${sortIcon}`
-            }</div>
-          </td>`;
-        })}</tr>
-      </thead>
+            return html`<td>
+              <div id$="${theadId}"
+                class$="thead__cell ${cachedPropCls[i] ? 'is-number' : ''}"
+                data-row-thead-cell$="${n}">${
+                  i === 0
+                    ? html`<paper-checkbox>${n}</paper-checkbox>${sortIcon}`
+                    : typeof tableData[0][n] === 'number'
+                      ? html`${sortIcon}${n}`
+                      : html`${n}${sortIcon}`
+                }
+                <paper-tooltip for$="${theadId}" offset="0">${tableDataDescription[n]}</paper-tooltip>
+              </div>
+            </td>`;
+          })}</tr>
+        </thead>
 
-      <tbody>${
-        repeat(itemsToRender, item => item.id, n => {
-          const isRowSelected = !(__rowSelected.find(rs => rs.id === n.id) == null);
+        <tbody>${
+          repeat(itemsToRender, item => item.id, n => {
+            const isRowSelected = !(__rowSelected.find(rs => rs.id === n.id) == null);
 
-          return html`<tr data-row-id$="${n.id}"
-            class$="${isRowSelected ? 'row-selected' : ''}">${
-            firstPropKey.map((nn, nni) =>
-              html`<td>
-                <div class$="${cachedPropCls[nni] ? 'is-number' : ''}">${
-                  nni === 0
-                    ? html`<paper-checkbox readonly checked?="${isRowSelected}">${n[nn]}</paper-checkbox>`
-                    : html`${n[nn]}`
-                }</div>
-              </td>`)
-          }</tr>`;
-        })
-      }</tbody>
-    </table>
+            return html`<tr data-row-id$="${n.id}"
+              class$="${isRowSelected ? 'row-selected' : ''}">${
+              firstPropKey.map((nn, nni) =>
+                html`<td>
+                  <div class$="${cachedPropCls[nni] ? 'is-number' : ''}">${
+                    nni === 0
+                      ? html`<paper-checkbox readonly checked?="${isRowSelected}">${n[nn]}</paper-checkbox>`
+                      : html`${n[nn]}`
+                  }</div>
+                </td>`)
+            }</tr>`;
+          })
+        }</tbody>
+      </table>
+    </div>
 
     <div class="table__footer">
       <div>Rows per page</div>
@@ -252,7 +271,7 @@ class SpendalotTable extends LitElement {
 
       <div class="actions">
         <paper-icon-button alt="previous page"
-          disabled?="${__pageNumber < 1}"
+          disabled?="${pageNumber < 1}"
           icon="app:chevron-left"
           on-click="${ev => this.showPreviousPage(ev)}"></paper-icon-button>
         <paper-icon-button alt="next page"
@@ -268,9 +287,10 @@ class SpendalotTable extends LitElement {
     return {
       tableTitle: String,
       tableData: Array,
+      tableDataDescription: Object,
 
-      __perPage: Number,
-      __pageNumber: Number,
+      perPage: Number,
+      pageNumber: Number,
       __rowSelected: Array,
     };
   }
@@ -278,8 +298,8 @@ class SpendalotTable extends LitElement {
   constructor() {
     super();
 
-    this.__perPage = 10;
-    this.__pageNumber = 0;
+    this.perPage = 10;
+    this.pageNumber = 0;
     this.__rowSelected = [];
   }
 
@@ -299,7 +319,7 @@ class SpendalotTable extends LitElement {
       this._tableSelectedDebouncer,
       timeOut.after(250),
       () => animationFrame.run(() => {
-        while (tgt.localName !== 'tr') {
+        while (tgt && tgt.localName !== 'tr') {
           tgt = tgt.parentElement;
         }
         
@@ -375,16 +395,38 @@ class SpendalotTable extends LitElement {
     
           if (oriTgt.localName === 'paper-checkbox' ? !oriTgt.checked : checkboxInRow.checked) {
             const selectedRowIdx = this.__rowSelected.findIndex(n => n.id === tgt.getAttribute('data-row-id'));
+            const rowSelected = [...this.__rowSelected.slice(0, selectedRowIdx), ...this.__rowSelected.slice(selectedRowIdx + 1)];
     
             checkboxInRow && (checkboxInRow.checked = false);
             tgt.classList.remove('row-selected');
-            this.__rowSelected = [...this.__rowSelected.slice(0, selectedRowIdx), ...this.__rowSelected.slice(selectedRowIdx + 1)];
+            
+            this.__rowSelected = rowSelected;
+            this.dispatchEvent(new CustomEvent('row-selected', {
+              detail: {
+                rowSelected,
+                perPage: this.perPage,
+                pageNumber: this.pageNumber,
+              },
+              bubbles: true,
+              composed: true,
+            }));
           } else {
             const selectedRowDataIdx = this.tableData.findIndex(n => n.id === tgt.getAttribute('data-row-id'));
+            const rowSelected = [...this.__rowSelected, this.tableData[selectedRowDataIdx]];
     
             checkboxInRow && (checkboxInRow.checked = true);
             tgt.classList.add('row-selected');
-            this.__rowSelected = [...this.__rowSelected, this.tableData[selectedRowDataIdx]];
+            
+            this.__rowSelected = rowSelected;
+            this.dispatchEvent(new CustomEvent('row-selected', {
+              detail: {
+                rowSelected,
+                perPage: this.perPage,
+                pageNumber: this.pageNumber,
+              },
+              bubbles: true,
+              composed: true,
+            }));
           }
         }
       })
@@ -401,10 +443,10 @@ class SpendalotTable extends LitElement {
         const newPerPage = +val;
         const tableDataLen = this.tableData.length;
 
-        this.__pageNumber = tableDataLen < newPerPage && this.__pageNumber > 0
+        this.pageNumber = tableDataLen < newPerPage && this.pageNumber > 0
           ? Math.floor(tableDataLen / newPerPage)
-          : this.__pageNumber;
-        this.__perPage = newPerPage;
+          : this.pageNumber;
+        this.perPage = newPerPage;
       })
     );
   }
@@ -414,7 +456,7 @@ class SpendalotTable extends LitElement {
       this._showPreviousPageDebouncer,
       timeOut.after(250),
       () => animationFrame.run(() => {
-        this.__pageNumber = this.__pageNumber - 1;
+        this.pageNumber = this.pageNumber - 1;
       })
     );
   }
@@ -424,7 +466,7 @@ class SpendalotTable extends LitElement {
       this._showNextPageDebouncer,
       timeOut.after(250),
       () => animationFrame.run(() => {
-        this.__pageNumber = 1 + this.__pageNumber;
+        this.pageNumber = 1 + this.pageNumber;
       })
     );
   }

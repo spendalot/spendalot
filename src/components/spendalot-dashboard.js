@@ -14,6 +14,7 @@ console.time('dashboard');
 class SpendalotDashboard extends LitElement {
   _render({
     __history,
+    __historyDescription,
   }) {
     return html`
     <style>
@@ -47,6 +48,7 @@ class SpendalotDashboard extends LitElement {
 
       <spendalot-table class="history"
         tableTitle="History"
+        tableDataDescription="${__historyDescription}"
         tableData="${__history}"></spendalot-table>
     </div>
     `;
@@ -55,12 +57,21 @@ class SpendalotDashboard extends LitElement {
   static get properties() {
     return {
       __history: Array,
+      __historyDescription: Object,
     };
   }
 
   constructor() {
     super();
 
+    this.__historyDescription = {
+      id: 'Unique ID',
+      date: 'Date',
+      debit: 'Total debit in that day',
+      credit: 'Total credit in that day',
+      isHoliday: 'True if that is a holiday',
+      isWeekend: 'True if that is a weekend',
+    };
     this.__history = [
       {
         id: '9516',
