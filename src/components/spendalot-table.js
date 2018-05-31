@@ -8,7 +8,6 @@ import { repeat } from 'lit-html/lib/repeat.js';
 import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
 import {
   timeOut,
-  animationFrame,
 } from '@polymer/polymer/lib/utils/async.js';
 
 import '@polymer/iron-icon/iron-icon.js';
@@ -113,10 +112,13 @@ class SpendalotTable extends LitElement {
       }
       tr > td {
         height: 48px;
-        padding: 0 0 0 16px;
+        padding: 0 0 0 56px;
       }
-      tr > td:not(:last-of-type) {
+      tr > td:first-of-type {
         padding: 0 56px 0 16px;
+      }
+      tr > td:last-of-type {
+        padding: 0 16px 0 56px;
       }
       tr > td > div {
         display: flex;
@@ -136,7 +138,7 @@ class SpendalotTable extends LitElement {
         opacity: 0;
         transform: rotate(180deg);
         transition: opacity 150ms cubic-bezier(0, 0, .4, 1),
-                    transform 250ms cubic-bezier(0, 0, .4, 1);
+                    transform this.debounceRatems cubic-bezier(0, 0, .4, 1);
         pointer-events: none;
       }
       thead > tr > td > div.thead__cell.is-number > iron-icon {
@@ -291,6 +293,8 @@ class SpendalotTable extends LitElement {
 
       perPage: Number,
       pageNumber: Number,
+      debounceRate: Number,
+
       __rowSelected: Array,
     };
   }
@@ -306,19 +310,20 @@ class SpendalotTable extends LitElement {
   _firstRendered() {
     console.timeEnd('table');
 
+    this.debounceRate = 150;
     this.__tableHeader = this.tableHeader;
   }
 
   tableSelected(ev) {
-    const oriTgt = ev.target;
+    let oriTgt = ev.target;
     let tgt = ev.target;
 
     if (tgt == null) return;
 
     this._tableSelectedDebouncer = Debouncer.debounce(
       this._tableSelectedDebouncer,
-      timeOut.after(250),
-      () => animationFrame.run(() => {
+      timeOut.after(this.debounceRate),
+      () => {
         while (tgt && tgt.localName !== 'tr') {
           tgt = tgt.parentElement;
         }
@@ -326,23 +331,18 @@ class SpendalotTable extends LitElement {
         if (tgt == null) return;
     
         if (tgt.parentElement && tgt.parentElement.localName === 'thead') {
+          if (oriTgt.localName === 'td') {
+            oriTgt = oriTgt.querySelector('.thead__cell');
+          }
+          
           if (oriTgt.localName === 'div' && oriTgt.classList.contains('thead__cell')) {
             const theadCellVal = oriTgt.getAttribute('data-row-thead-cell');
 
             if (oriTgt.classList.contains('show-sorting')) {
               const hasSortingReversed = oriTgt.classList.contains('show-sorting-reversed');
 
-              this.tableData = [...this.tableData].sort((a, b) => {
-                const diff = hasSortingReversed
-                  ? a[theadCellVal] - b[theadCellVal]
-                  : b[theadCellVal] - a[theadCellVal];
-
-                return diff === 0
-                  ? 0
-                  : diff < 0
-                    ? -1
-                    : 1;
-              });
+              this.tableData = [...this.tableData].sort((a, b) =>
+                this.sortTableData(a, b, theadCellVal, !hasSortingReversed));
 
               return hasSortingReversed
                 ? oriTgt.classList.remove('show-sorting-reversed')
@@ -358,15 +358,8 @@ class SpendalotTable extends LitElement {
             });
 
             oriTgt.classList.add('show-sorting');
-            this.tableData = [...this.tableData].sort((a, b) => {
-              const diff = a[theadCellVal] - b[theadCellVal];
-
-              return diff === 0
-                ? 0
-                : diff < 0
-                  ? -1 
-                  : 1;
-            });
+            this.tableData = [...this.tableData].sort((a, b) =>
+              this.sortTableData(a, b, theadCellVal));
 
             return;
           }
@@ -429,7 +422,7 @@ class SpendalotTable extends LitElement {
             }));
           }
         }
-      })
+      }
     );
   }
 
@@ -438,8 +431,8 @@ class SpendalotTable extends LitElement {
 
     this._updatePerPageDebouncer = Debouncer.debounce(
       this._updatePerPageDebouncer,
-      timeOut.after(250),
-      () => animationFrame.run(() => {
+      timeOut.after(this.debounceRate),
+      () => {
         const newPerPage = +val;
         const tableDataLen = this.tableData.length;
 
@@ -447,28 +440,61 @@ class SpendalotTable extends LitElement {
           ? Math.floor(tableDataLen / newPerPage)
           : this.pageNumber;
         this.perPage = newPerPage;
-      })
+      }
     );
   }
 
   showPreviousPage(ev) {
     this._showPreviousPageDebouncer = Debouncer.debounce(
       this._showPreviousPageDebouncer,
-      timeOut.after(250),
-      () => animationFrame.run(() => {
+      timeOut.after(this.debounceRate),
+      () => {
         this.pageNumber = this.pageNumber - 1;
-      })
+      }
     );
   }
 
   showNextPage(ev) {
     this._showNextPageDebouncer = Debouncer.debounce(
       this._showNextPageDebouncer,
-      timeOut.after(250),
-      () => animationFrame.run(() => {
+      timeOut.after(this.debounceRate),
+      () => {
         this.pageNumber = 1 + this.pageNumber;
-      })
+      }
     );
+  }
+
+  sortTableData(a, b, theadCellVal, hasSortingReversed = false) {
+    const diff = ((na, nb, sr) => {
+      switch (true) {
+        case (typeof na === 'number'): {
+          return sr
+            ? nb - na
+            : na - nb;
+        }
+        case (typeof na === 'string' && new Date(na).toJSON() == null): {
+          return sr
+            ? Intl.Collator('co', { numeric: true, usage: 'sort' }).compare(b, a)
+            : Intl.Collator('co', { numeric: true, usage: 'sort' }).compare(a, b);
+        }
+        case (na != null && new Date(na).toJSON() != null): {
+          return sr
+            ? +new Date(nb) - +new Date(na)
+            : +new Date(na) - +new Date(nb);
+        }
+        default: {
+          return sr
+            ? nb - na
+            : na - nb;
+        }
+      }
+    })(a[theadCellVal], b[theadCellVal], hasSortingReversed);
+      
+    return diff === 0
+      ? 0
+      : diff < 0
+        ? -1
+        : 1;
   }
 
   get tableHeader() {

@@ -99,5 +99,12 @@
     
     <!-- Load your application shell -->
     <script type="module" src="src/components/spendalot-app.js" crossorigin></script>
+
+    <script>
+      console.time('ipt');
+      const iptEl = document.createElement('input');
+      document.body.appendChild(iptEl);
+      console.timeEnd('ipt');
+    </script>
   </body>
 </html>
