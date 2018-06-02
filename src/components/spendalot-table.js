@@ -29,8 +29,6 @@ class SpendalotTable extends LitElement {
     perPage,
     pageNumber,
     pageLimits,
-
-    __rowSelected,
   }) {
     const firstProp = tableData[0];
     const firstPropKey = Object.keys(firstProp);
@@ -42,7 +40,7 @@ class SpendalotTable extends LitElement {
     const firstItem = pageNumber * perPage;
     const lastItem = firstItem + perPage;
     const itemsToRender = tableData.slice(firstItem, lastItem);
-    const finalRowSelected = this.computeFinalRowSelected(__rowSelected, tableData);
+    const rowSelected = tableData.filter(n => n.selected);
 
     return html`
     <style>
@@ -209,8 +207,8 @@ class SpendalotTable extends LitElement {
     </style>
 
     <div class="header">${
-      Array.isArray(finalRowSelected) && finalRowSelected.length > 0
-        ? html`<div class="has-selected-items">${finalRowSelected.length} item${finalRowSelected.length > 1 ? 's' : ''} selected</div>`
+      Array.isArray(rowSelected) && rowSelected.length > 0
+        ? html`<div class="has-selected-items">${rowSelected.length} item${rowSelected.length > 1 ? 's' : ''} selected</div>`
         : html`<h2>${tableTitle}</h2>
         <div></div>`
     }</div>
@@ -241,15 +239,13 @@ class SpendalotTable extends LitElement {
 
         <tbody>${
           repeat(itemsToRender, item => item.id, n => {
-            const isRowSelected = !(finalRowSelected.find(rs => rs.id === n.id) == null);
-
             return html`<tr data-row-id$="${n.id}"
-              class$="${n.selected || isRowSelected ? 'row-selected' : ''}">${
+              class$="${n.selected ? 'row-selected' : ''}">${
               firstPropKey.map((nn, nni) =>
                 html`<td>
                   <div class$="${cachedPropCls[nni] ? 'is-number' : ''}">${
                     nni === 0
-                      ? html`<paper-checkbox readonly checked?="${n.selected || isRowSelected}">${n[nn]}</paper-checkbox>`
+                      ? html`<paper-checkbox readonly checked?="${n.selected}">${n[nn]}</paper-checkbox>`
                       : html`${n[nn]}`
                   }</div>
                 </td>`)
@@ -297,8 +293,6 @@ class SpendalotTable extends LitElement {
       pageNumber: Number,
       pageLimits: Array,
       debounceRate: Number,
-
-      __rowSelected: Array,
     };
   }
 
@@ -314,8 +308,6 @@ class SpendalotTable extends LitElement {
       100,
       200,
     ];
-
-    this.__rowSelected = [];
   }
 
   _firstRendered() {
@@ -382,11 +374,21 @@ class SpendalotTable extends LitElement {
               if (oriTgt.checked) {
                 n.classList.add('row-selected');
                 checkboxInTableRow && (checkboxInTableRow.checked = true);
-                this.__rowSelected = [...this.tableData];
+                this.tableData = this.tableData.map((n) => {
+                  return {
+                    ...n,
+                    selected: true,
+                  };
+                });
               } else {
                 n.classList.remove('row-selected');
                 checkboxInTableRow && (checkboxInTableRow.checked = false);
-                this.__rowSelected = [];
+                this.tableData = this.tableData.map((n) => {
+                  return {
+                    ...n,
+                    selected: false,
+                  };
+                });
               }
             });
     
@@ -398,13 +400,19 @@ class SpendalotTable extends LitElement {
           const checkboxInRow = tgt.querySelector('paper-checkbox');
     
           if (oriTgt.localName === 'paper-checkbox' ? !oriTgt.checked : checkboxInRow.checked) {
-            const selectedRowIdx = this.__rowSelected.findIndex(n => n.id === tgt.getAttribute('data-row-id'));
-            const rowSelected = [...this.__rowSelected.slice(0, selectedRowIdx), ...this.__rowSelected.slice(selectedRowIdx + 1)];
+            const rowSelected = this.tableData.map((n) => {
+              return {
+                ...n,
+                selected: n.id === tgt.getAttribute('data-row-id')
+                  ? false
+                  : n.selected,
+              };
+            });
     
             checkboxInRow && (checkboxInRow.checked = false);
             tgt.classList.remove('row-selected');
             
-            this.__rowSelected = rowSelected;
+            this.tableData = rowSelected;
             this.dispatchEvent(new CustomEvent('row-selected', {
               detail: {
                 rowSelected,
@@ -415,13 +423,19 @@ class SpendalotTable extends LitElement {
               composed: true,
             }));
           } else {
-            const selectedRowDataIdx = this.tableData.findIndex(n => n.id === tgt.getAttribute('data-row-id'));
-            const rowSelected = [...this.__rowSelected, this.tableData[selectedRowDataIdx]];
+            const rowSelected = this.tableData.map((n) => {
+              return {
+                ...n,
+                selected: n.id === tgt.getAttribute('data-row-id')
+                  ? true
+                  : n.selected,
+              };
+            });
     
             checkboxInRow && (checkboxInRow.checked = true);
             tgt.classList.add('row-selected');
             
-            this.__rowSelected = rowSelected;
+            this.tableData = rowSelected;
             this.dispatchEvent(new CustomEvent('row-selected', {
               detail: {
                 rowSelected,
@@ -506,12 +520,6 @@ class SpendalotTable extends LitElement {
       : diff < 0
         ? -1
         : 1;
-  }
-
-  computeFinalRowSelected(rowSelected, data) {
-    return Array.isArray(rowSelected) && rowSelected.length > 0
-      ? rowSelected
-      : data.filter(n => n.selected);
   }
 
   get tableHeader() {
