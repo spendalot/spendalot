@@ -49,7 +49,8 @@ class SpendalotDashboard extends LitElement {
       <spendalot-table class="history"
         tableTitle="History"
         tableDataDescription="${__historyDescription}"
-        tableData="${__history}"></spendalot-table>
+        tableData="${__history}"
+        showSelected="true"></spendalot-table>
     </div>
     `;
   }

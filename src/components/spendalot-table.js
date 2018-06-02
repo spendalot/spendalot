@@ -29,9 +29,12 @@ class SpendalotTable extends LitElement {
     perPage,
     pageNumber,
     pageLimits,
+    showSelected,
   }) {
     const firstProp = tableData[0];
-    const firstPropKey = Object.keys(firstProp);
+    const firstPropKey = showSelected
+      ? [...new Set([...Object.keys(firstProp), 'selected'])]
+      : Object.keys(firstProp).filter(n => n !== 'selected');
     // const cachedPropCls = firstPropKey.map(n =>
     //   typeof firstProp[n] !== 'boolean'
     //     && (typeof firstProp[n] === 'number' || !isNaN(firstProp[n])));
@@ -216,7 +219,7 @@ class SpendalotTable extends LitElement {
     <div class="content-container">
       <table on-click="${ev => this.tableSelected(ev)}">
         <thead>
-          <tr>${repeat(Object.keys(firstProp), (n, i) => {
+          <tr>${repeat(firstPropKey, (n, i) => {
             const sortIcon = html`<iron-icon alt="sort by value"
               icon="app:arrow-upward"></iron-icon>`;
             const theadId = `thead-id__${n.replace(/\W/gi, '-')}`;
@@ -238,17 +241,18 @@ class SpendalotTable extends LitElement {
         </thead>
 
         <tbody>${
-          repeat(itemsToRender, item => item.id, n => {
+          repeat(itemsToRender, item => item.id, (n) => {
             return html`<tr data-row-id$="${n.id}"
               class$="${n.selected ? 'row-selected' : ''}">${
-              firstPropKey.map((nn, nni) =>
-                html`<td>
+              firstPropKey.map((nn, nni) => {
+                return html`<td>
                   <div class$="${cachedPropCls[nni] ? 'is-number' : ''}">${
                     nni === 0
                       ? html`<paper-checkbox readonly checked?="${n.selected}">${n[nn]}</paper-checkbox>`
-                      : html`${n[nn]}`
+                      : html`${nn === 'selected' ? Boolean(n[nn]) : n[nn]}`
                   }</div>
-                </td>`)
+                </td>`;
+              })
             }</tr>`;
           })
         }</tbody>
@@ -293,6 +297,7 @@ class SpendalotTable extends LitElement {
       pageNumber: Number,
       pageLimits: Array,
       debounceRate: Number,
+      showSelected: Boolean,
     };
   }
 
@@ -308,13 +313,12 @@ class SpendalotTable extends LitElement {
       100,
       200,
     ];
+    this.debounceRate = 150;
+    this.showSelected = false;
   }
 
   _firstRendered() {
     console.timeEnd('table');
-
-    this.debounceRate = 150;
-    this.__tableHeader = this.tableHeader;
   }
 
   tableSelected(ev) {
@@ -520,10 +524,6 @@ class SpendalotTable extends LitElement {
       : diff < 0
         ? -1
         : 1;
-  }
-
-  get tableHeader() {
-    return this.shadowRoot.querySelector('.header');
   }
 
   get allTableRows() {
