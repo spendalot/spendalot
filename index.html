@@ -49,7 +49,7 @@
     <meta name="msapplication-TileColor" content="#3f51b5">
     <meta name="msapplication-tap-highlight" content="no">
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700|Roboto+Mono:400,500,700|Google+Sans:400,500">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700|Roboto+Mono:300,400,400italic,500,500italic,700|Google+Sans:300,400,400italic,500,500italic,700">
 
     <script>
       /**
@@ -66,13 +66,13 @@
       // window.MyAppGlobals = { rootPath: '/' };
 
       // Load and register pre-caching Service Worker
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('service-worker.js', {
-            scope: '/',
-          });
-        });
-      }
+      // if ('serviceWorker' in navigator) {
+      //   window.addEventListener('load', function() {
+      //     navigator.serviceWorker.register('service-worker.js', {
+      //       scope: '/',
+      //     });
+      //   });
+      // }
 
       window.process = { env: { NODE_ENV: 'production' } };
     </script>

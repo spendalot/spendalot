@@ -88,6 +88,7 @@ class SpendalotDashboard extends LitElement {
         credit: 0,
         isHoliday: false,
         isWeekend: false,
+        selected: true,
       },
       {
         id: '12685',

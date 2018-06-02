@@ -28,6 +28,8 @@ class SpendalotTable extends LitElement {
 
     perPage,
     pageNumber,
+    pageLimits,
+
     __rowSelected,
   }) {
     const firstProp = tableData[0];
@@ -40,6 +42,7 @@ class SpendalotTable extends LitElement {
     const firstItem = pageNumber * perPage;
     const lastItem = firstItem + perPage;
     const itemsToRender = tableData.slice(firstItem, lastItem);
+    const finalRowSelected = this.computeFinalRowSelected(__rowSelected, tableData);
 
     return html`
     <style>
@@ -206,8 +209,8 @@ class SpendalotTable extends LitElement {
     </style>
 
     <div class="header">${
-      Array.isArray(__rowSelected) && __rowSelected.length > 0
-        ? html`<div class="has-selected-items">${__rowSelected.length} item${__rowSelected.length > 1 ? 's' : ''} selected</div>`
+      Array.isArray(finalRowSelected) && finalRowSelected.length > 0
+        ? html`<div class="has-selected-items">${finalRowSelected.length} item${finalRowSelected.length > 1 ? 's' : ''} selected</div>`
         : html`<h2>${tableTitle}</h2>
         <div></div>`
     }</div>
@@ -238,15 +241,15 @@ class SpendalotTable extends LitElement {
 
         <tbody>${
           repeat(itemsToRender, item => item.id, n => {
-            const isRowSelected = !(__rowSelected.find(rs => rs.id === n.id) == null);
+            const isRowSelected = !(finalRowSelected.find(rs => rs.id === n.id) == null);
 
             return html`<tr data-row-id$="${n.id}"
-              class$="${isRowSelected ? 'row-selected' : ''}">${
+              class$="${n.selected || isRowSelected ? 'row-selected' : ''}">${
               firstPropKey.map((nn, nni) =>
                 html`<td>
                   <div class$="${cachedPropCls[nni] ? 'is-number' : ''}">${
                     nni === 0
-                      ? html`<paper-checkbox readonly checked?="${isRowSelected}">${n[nn]}</paper-checkbox>`
+                      ? html`<paper-checkbox readonly checked?="${n.selected || isRowSelected}">${n[nn]}</paper-checkbox>`
                       : html`${n[nn]}`
                   }</div>
                 </td>`)
@@ -259,11 +262,10 @@ class SpendalotTable extends LitElement {
     <div class="table__footer">
       <div>Rows per page</div>
 
-      <select on-change="${ev => this.updatePerPage(ev)}">
-        <option value="10" selected>10</option>
-        <option value="15">15</option>
-        <option value="20">20</option>
-      </select>
+      <select on-change="${ev => this.updatePerPage(ev)}">${
+        pageLimits.map(n =>
+          html`<option value="${n}" selected?="${n === perPage}">${n}</option>`)
+      }</select>
 
       <div class="pages">${
         itemsToRender.length === 1
@@ -293,6 +295,7 @@ class SpendalotTable extends LitElement {
 
       perPage: Number,
       pageNumber: Number,
+      pageLimits: Array,
       debounceRate: Number,
 
       __rowSelected: Array,
@@ -304,6 +307,14 @@ class SpendalotTable extends LitElement {
 
     this.perPage = 10;
     this.pageNumber = 0;
+    this.pageLimits = [
+      10,
+      30,
+      50,
+      100,
+      200,
+    ];
+
     this.__rowSelected = [];
   }
 
@@ -495,6 +506,12 @@ class SpendalotTable extends LitElement {
       : diff < 0
         ? -1
         : 1;
+  }
+
+  computeFinalRowSelected(rowSelected, data) {
+    return Array.isArray(rowSelected) && rowSelected.length > 0
+      ? rowSelected
+      : data.filter(n => n.selected);
   }
 
   get tableHeader() {
