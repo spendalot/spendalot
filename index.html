@@ -82,6 +82,7 @@
       body {
         margin: 0;
         font-family: 'Google Sans', sans-serif;
+        font-size: 16px;
         line-height: 1.5;
         min-height: 100vh;
         background-color: #eeeeee;
@@ -90,21 +91,18 @@
     </style>
   </head>
   <body>
-    <spendalot-app appTitle="Spendalot App"></spendalot-app>
+    <spendalot-app appName="Spendalot">
+      <input>
+    </spendalot-app>
+
     <noscript>
       Please enable JavaScript to view this website.
     </noscript>
+
     <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
     <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     
     <!-- Load your application shell -->
     <script type="module" src="src/components/spendalot-app.js" crossorigin></script>
-
-    <script>
-      console.time('ipt');
-      const iptEl = document.createElement('input');
-      document.body.appendChild(iptEl);
-      console.timeEnd('ipt');
-    </script>
   </body>
 </html>

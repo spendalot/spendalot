@@ -24,7 +24,7 @@ console.time('app');
 
 class SpendalotApp extends connectStore(LitElement) {
   _render({
-    appTitle,
+    appName,
 
     __selectedPage,
   }) {
@@ -34,14 +34,16 @@ class SpendalotApp extends connectStore(LitElement) {
         display: block;
         box-sizing: border-box;
 
-        --spendalot-app-primary-color: #fff;
-        --spendalot-app-primary-text-color: #2779ff;
+        --spendalot-app-primary-color: #2779ff;
+        --spendalot-app-secondary-color: #fff;
         --spendalot-app-primary-border-radius: 20px;
+        --spendalot-app-side-margin: 96px;
       }
 
       * {
         box-sizing: border-box;
       }
+
 
       header {
         display: flex;
@@ -50,49 +52,104 @@ class SpendalotApp extends connectStore(LitElement) {
         width: 100%;
         height: 100%;
       }
+      header::before {
+        display: content;
+        content: '';
+        position: absolute;
+        max-height: 480px;
+        width: 100%;
+        height: calc((100vw * .8) / 3 * 2);
+        background-color: var(--spendalot-app-primary-color);
+        color: var(--spendalot-app-secondary-color);
+        border-radius: 0 0 var(--spendalot-app-primary-border-radius) var(--spendalot-app-primary-border-radius);
+        z-index: -1;
+      }
 
       app-toolbar {
-        background-color: var(--spendalot-app-primary-color);
-        color: var(--spendalot-app-primary-text-color);
+        margin: 24px var(--spendalot-app-side-margin) 0;
+        padding: 0;
+        color: var(--spendalot-app-secondary-color);
+        font-size: 16px;
       }
-      app-toolbar > paper-icon-button {
-        margin: 0 8px 0 0;
-
-        --paper-icon-button-ink-color: var(--spendalot-app-primary-text-color);
+      .top-toolbar > .avatar {
+        margin: 0 0 0 auto;
+        width: 48px;
+        height: 48px;
+        background-color: rgba(255, 255, 255, .5);
+        border-radius: 50%;
+      }
+      .bottom-toolbar {
+        align-items: flex-start;
+        margin: 0 96px;
       }
 
       main {
         min-height: 100vh;
         width: 100%;
         height: 100%;
-        background-color: #fff;
+      }
+
+      .content-container {
+        margin: 0 var(--spendalot-app-side-margin) 40px;
+        width: calc(100% - (2 * var(--spendalot-app-side-margin)));
+      }
+
+      .trend-graph,
+      .data-table {
+        margin: 24px 0 0;
+        width: 100%;
+        background-color: var(--spendalot-app-secondary-color);
+        color: var(--spendalot-app-primary-color);
+        border-radius: var(--spendalot-app-primary-border-radius);
+      }
+      .trend-graph {
+        height: 131px;
+      }
+      .data-table {
+        height: 100vh;
+      }
+
+      .bottomsheet-nav {
+        width: 100%;
+        height: 64px;
+        background-color: var(--spendalot-app-secondary-color);
+        color: var(--spendalot-app-primary-color);
+        border-radius: var(--spendalot-app-primary-border-radius) var(--spendalot-app-primary-border-radius) 0 0;
       }
     </style>
 
-    <!-- Header -->
     <header>
-      <app-toolbar>
-        <paper-icon-button alt="menu" icon="app:menu"></paper-icon-button>
-        <div main-title>${appTitle}</div>
+      <app-toolbar class="top-toolbar">
+        <paper-icon-button style="margin: 0 16px 0 0;" icon="app:menu"></paper-icon-button>
+        <div title style="font-size: 24px;">${appName}</div>
+        <paper-icon-button style="margin: 0 0 0 autp;" class="avatar" src=""></paper-icon-button>
       </app-toolbar>
-      <app-toolbar></app-toolbar>
+
+      <app-toolbar class="bottom-toolbar">
+        <div style="margin: 0 0 0 auto;">Good day, ${'motss'}!</div>
+      </app-toolbar>
     </header>
 
     <main>
-      <spendalot-pages selectedPage="${__selectedPage}">
-        <spendalot-dashboard page="dashboard"></spendalot-dashboard>
-      </spendalot-pages>
+      <div class="content-container">
+        <div class="trend-graph"></div>
+        <div class="data-table"></div>
+      </div>
     </main>
 
-    <spendalot-footer>
+    <nav class="bottomsheet-nav">
+
+    </nav>
+
+    <!-- <spendalot-footer>
       <div>Build with ❤️ and Lit-Element</div>
-    </spendalot-footer>
+    </spendalot-footer> -->
     `;
   }
 
   static get properties() {
     return {
-      appTitle: String,
+      appName: String,
 
       __selectedPage: String,
       __offline: Boolean,

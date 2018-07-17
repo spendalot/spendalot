@@ -14,22 +14,22 @@
     "test:integration": "polymer build # test that psk builds without error with the CLI"
   },
   "dependencies": {
-    "@polymer/app-layout": "^3.0.0-pre.19",
-    "@polymer/iron-icon": "^3.0.0-pre.19",
-    "@polymer/iron-iconset-svg": "^3.0.0-pre.19",
-    "@polymer/lit-element": "^0.5.1",
-    "@polymer/paper-checkbox": "^3.0.0-pre.19",
-    "@polymer/paper-icon-button": "^3.0.0-pre.19",
-    "@polymer/paper-tooltip": "^3.0.0-pre.19",
+    "@polymer/app-layout": "^3.0.0-pre.21",
+    "@polymer/iron-icon": "^3.0.0-pre.21",
+    "@polymer/iron-iconset-svg": "^3.0.0-pre.21",
+    "@polymer/lit-element": "^0.5.2",
+    "@polymer/paper-checkbox": "^3.0.0-pre.21",
+    "@polymer/paper-icon-button": "^3.0.0-pre.21",
+    "@polymer/paper-tooltip": "^3.0.0-pre.21",
     "@polymer/polymer": "^3.0.0",
-    "@webcomponents/webcomponentsjs": "^2.0.0",
-    "pwa-helpers": "^0.8.2",
+    "@webcomponents/webcomponentsjs": "^2.0.2",
+    "pwa-helpers": "^0.8.3",
     "redux": "^4.0.0",
-    "redux-thunk": "^2.2.0",
+    "redux-thunk": "^2.3.0",
     "reselect": "^3.0.1"
   },
   "devDependencies": {
-    "polymer-cli": "^1.7.2",
+    "polymer-cli": "^1.7.7",
     "wct-browser-legacy": "^1.0.1"
   },
   "engines": {

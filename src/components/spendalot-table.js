@@ -116,13 +116,13 @@ class SpendalotTable extends LitElement {
       }
       tr > td {
         height: 48px;
-        padding: 0 0 0 56px;
+        padding: 0 0 0 64px;
       }
       tr > td:first-of-type {
-        padding: 0 56px 0 16px;
+        padding: 0 64px 0 16px;
       }
       tr > td:last-of-type {
-        padding: 0 16px 0 56px;
+        padding: 0 16px 0 64px;
       }
       tr > td > div {
         display: flex;
@@ -166,7 +166,7 @@ class SpendalotTable extends LitElement {
         --paper-checkbox-label-color: #555;
       }
       tbody > tr > td > div > paper-checkbox {
-        --paper-checkbox-label-color: currentColor;
+        --paper-checkbox-label-color: #222;
       }
       tbody > tr.row-selected {
         background-color: #eee;
@@ -213,7 +213,9 @@ class SpendalotTable extends LitElement {
       Array.isArray(rowSelected) && rowSelected.length > 0
         ? html`<div class="has-selected-items">${rowSelected.length} item${rowSelected.length > 1 ? 's' : ''} selected</div>`
         : html`<h2>${tableTitle}</h2>
-        <div></div>`
+        <div class="header__actions">
+          <slot name="header-actions"></slot>
+        </div>`
     }</div>
 
     <div class="content-container">
