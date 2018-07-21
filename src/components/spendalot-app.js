@@ -34,12 +34,10 @@ class SpendalotApp extends connectStore(LitElement) {
       :host {
         display: grid;
         grid-template-columns: minmax(auto, var(--spendalot-app-main-max-width)) minmax(auto, var(--spendalot-app-trend-max-width));
-        grid-template-rows: minmax(auto, 150px) minmax(auto, 1fr) 64px;
-        grid-template-areas: "header trend"
-                             "main trend"
-                             "bottomsheet trend";
-
+        grid-template-areas: "content nav";
         box-sizing: border-box;
+
+        min-height: 100vh;
 
         --spendalot-app-main-max-width: 80%;
         --spendalot-app-trend-max-width: 20%;
@@ -51,6 +49,17 @@ class SpendalotApp extends connectStore(LitElement) {
 
       * {
         box-sizing: border-box;
+      }
+
+      .content-container {
+        grid-area: content;
+        
+        position: relative;
+        display: grid;
+        grid-template-rows: minmax(auto, 150px) minmax(auto, 1fr) 64px;
+        grid-template-areas: "header"
+                             "main"
+                             "bottomsheet";
       }
 
       header {
@@ -67,7 +76,7 @@ class SpendalotApp extends connectStore(LitElement) {
         height: calc((100vw * .8) / 3 * 2);
         background-color: var(--spendalot-app-primary-color);
         color: var(--spendalot-app-secondary-color);
-        border-radius: 0 0 var(--spendalot-app-primary-border-radius) var(--spendalot-app-primary-border-radius);
+        border-radius: 0 0 0 100px;
         z-index: -1;
       }
 
@@ -92,12 +101,10 @@ class SpendalotApp extends connectStore(LitElement) {
       main {
         grid-area: main;
 
-        min-height: 100vh;
         width: 100%;
-        height: 100%;
       }
 
-      .content-container {
+      .main-container {
         margin: 0 var(--spendalot-app-side-margin) 40px;
         width: calc(100% - (2 * var(--spendalot-app-side-margin)));
       }
@@ -111,22 +118,51 @@ class SpendalotApp extends connectStore(LitElement) {
         border-radius: var(--spendalot-app-primary-border-radius);
       }
       .trend-graph {
-        height: 131px;
+        height: 140px;
       }
       .data-table {
+        max-height: calc(100vh - 150px - 140px - 24px * 2 - 64px - 40px);
         height: 100vh;
+        overflow: auto;
+      }
+
+      .nav-bottomsheet {
+        grid-area: bottomsheet;
+
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        max-width: var(--spendalot-app-main-max-width);
+        width: 100%;
+        height: 64px;
+        padding: 0 16px;
+        background-color: var(--spendalot-app-secondary-color);
+        color: var(--spendalot-app-primary-color);
+        border-radius: var(--spendalot-app-primary-border-radius) var(--spendalot-app-primary-border-radius) 0 0;
+      }
+
+      .fab {
+        position: fixed;
+        right: calc(20% + 16px);
+        bottom: calc(64px + 16px);
+
+        width: 64px;
+        height: 64px;
+        background-color: #fb0097;
+        border-radius: 50%;
       }
 
       .nav-trend {
-        grid-area: trend;
+        grid-area: nav;
 
+        position: relative;
         display: grid;
         grid-template-columns: 16px 1fr 16px;
         grid-template-rows: 64px minmax(auto, 1fr);
         grid-template-areas: ". header ."
                              ". trend .";
-
         background-color: #30517a;
+        overflow: auto;
       }
       .nav-trend__title {
         grid-area: header;
@@ -155,43 +191,35 @@ class SpendalotApp extends connectStore(LitElement) {
         background-color: #fff;
         border-radius: var(--spendalot-app-primary-border-radius);
       }
-
-      .nav-bottomsheet {
-        grid-area: bottomsheet;
-
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        max-width: var(--spendalot-app-main-max-width);
-        width: 100%;
-        height: 64px;
-        padding: 0 16px;
-        background-color: var(--spendalot-app-secondary-color);
-        color: var(--spendalot-app-primary-color);
-        border-radius: var(--spendalot-app-primary-border-radius) var(--spendalot-app-primary-border-radius) 0 0;
-      }
     </style>
 
-    <header>
-      <app-toolbar class="top-toolbar">
-        <paper-icon-button style="margin: 0 16px 0 0;" icon="app:menu"></paper-icon-button>
-        <div title style="font-size: 24px;">${appName}</div>
-        <paper-icon-button style="margin: 0 0 0 autp;" class="avatar" src=""></paper-icon-button>
-      </app-toolbar>
+    <div class="content-container">
+      <header>
+        <app-toolbar class="top-toolbar">
+          <paper-icon-button style="margin: 0 16px 0 0;" icon="app:menu" hidden></paper-icon-button>
+          <div title style="font-size: 24px;">${appName}</div>
+          <paper-icon-button style="margin: 0 0 0 autp;" class="avatar" src=""></paper-icon-button>
+        </app-toolbar>
+  
+        <app-toolbar class="bottom-toolbar">
+          <div style="margin: 0 0 0 auto;">Good day, ${'motss'}!</div>
+        </app-toolbar>
+      </header>
+  
+      <main>
+        <div class="main-container">
+          <div class="trend-graph"></div>
+          <div class="data-table"></div>
+        </div>
+  
+      </main>
+  
+      <nav class="nav-bottomsheet">
+      </nav>
 
-      <app-toolbar class="bottom-toolbar">
-        <div style="margin: 0 0 0 auto;">Good day, ${'motss'}!</div>
-      </app-toolbar>
-    </header>
-
-    <main>
-      <div class="content-container">
-        <div class="trend-graph"></div>
-        <div class="data-table"></div>
-      </div>
-
-    </main>
-
+      <paper-icon-button class="fab"></paper-icon-button>
+    </div>
+      
     <nav class="nav-trend">
       <div class="nav-trend__title">Trends</div>
 
@@ -201,10 +229,6 @@ class SpendalotApp extends connectStore(LitElement) {
           <div class="trend-card__content"></div>
         </div>
       </div>
-    </nav>
-
-    <nav class="nav-bottomsheet">
-
     </nav>
 
     <!-- <spendalot-footer>
@@ -247,12 +271,20 @@ class SpendalotApp extends connectStore(LitElement) {
     console.debug('_didRender', props, changed);
   }
 
-  _stateChanged(state) {
+  _stateChanged(state = {}) {
     console.debug('_stateChanged', state);
 
-    this.__selectedPage = state.app.page;
-    this.__offline = state.app.offline;
-    this.__snackbarOpened = state.app.snackbarOpened;
+    const {
+      app: {
+        page,
+        offline,
+        snackbarOpened,
+      } = {},
+    } = state || {};
+
+    this.__selectedPage = page;
+    this.__offline = offline;
+    this.__snackbarOpened = snackbarOpened;
   }
 
   get pages() {
