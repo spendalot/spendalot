@@ -28,19 +28,20 @@ class SpendalotApp extends connectStore(LitElement) {
     appName,
 
     __selectedPage,
+    __isMobile,
   }) {
     return html`
     <style>
       :host {
         display: grid;
-        grid-template-columns: minmax(auto, var(--spendalot-app-main-max-width)) minmax(auto, var(--spendalot-app-trend-max-width));
+        grid-template-columns: minmax(var(--spendalot-app-main-max-width), 1fr) minmax(var(--spendalot-app-trend-max-width), 1fr);
         grid-template-areas: "content nav";
         box-sizing: border-box;
 
         min-height: 100vh;
 
-        --spendalot-app-main-max-width: 80%;
-        --spendalot-app-trend-max-width: 20%;
+        --spendalot-app-main-max-width: 80vw;
+        --spendalot-app-trend-max-width: 20vw;
         --spendalot-app-primary-color: #2779ff;
         --spendalot-app-secondary-color: #fff;
         --spendalot-app-primary-border-radius: 20px;
@@ -71,9 +72,10 @@ class SpendalotApp extends connectStore(LitElement) {
         display: content;
         content: '';
         position: absolute;
-        max-height: 480px;
+        max-height: 480px;;
         width: 100%;
-        height: calc((100vw * .8) / 3 * 2);
+        /* height: calc((100vw * .8) / 3 * 2); */
+        height: 100vh;
         background-color: var(--spendalot-app-primary-color);
         color: var(--spendalot-app-secondary-color);
         border-radius: 0 0 0 100px;
@@ -106,7 +108,8 @@ class SpendalotApp extends connectStore(LitElement) {
 
       .main-container {
         margin: 0 var(--spendalot-app-side-margin) 40px;
-        width: calc(100% - (2 * var(--spendalot-app-side-margin)));
+        max-width: calc(100% - (2 * var(--spendalot-app-side-margin)));
+        width: 100%;
       }
 
       .trend-graph,
@@ -161,6 +164,7 @@ class SpendalotApp extends connectStore(LitElement) {
         grid-template-rows: 64px minmax(auto, 1fr);
         grid-template-areas: ". header ."
                              ". trend .";
+        min-width: 20vw;
         background-color: #30517a;
         overflow: auto;
       }
@@ -191,12 +195,47 @@ class SpendalotApp extends connectStore(LitElement) {
         background-color: #fff;
         border-radius: var(--spendalot-app-primary-border-radius);
       }
+
+      @media screen and (max-width: 500px) {
+        :host {
+          grid-template-columns: 1fr;
+        }
+
+        header::before {
+          max-height: calc(150px + 24px + 140px + 24px + 64px);
+          border-radius: 0 0 0 16px;
+        }
+
+        app-toolbar {
+          margin: 24px 16px 0;
+        }
+        .bottom-toolbar {
+          margin: 0 16px;
+        }
+
+        .main-container {
+          max-width: calc(100% - 16px * 2);
+          margin: 0 16px;
+        }
+
+        .fab {
+          bottom: calc(64px - (64px / 2));
+          right: calc(50% - (64px / 2));
+        }
+
+        .nav-bottomsheet {
+          max-width: 100%;
+        }
+      }
     </style>
 
     <div class="content-container">
       <header>
         <app-toolbar class="top-toolbar">
-          <paper-icon-button style="margin: 0 16px 0 0;" icon="app:menu" hidden></paper-icon-button>
+          ${__isMobile
+            ? html`<paper-icon-button
+              style="margin: 0 16px 0 0;" icon="app:menu"></paper-icon-button>`
+            : null}
           <div title style="font-size: 24px;">${appName}</div>
           <paper-icon-button style="margin: 0 0 0 autp;" class="avatar" src=""></paper-icon-button>
         </app-toolbar>
@@ -220,16 +259,18 @@ class SpendalotApp extends connectStore(LitElement) {
       <paper-icon-button class="fab"></paper-icon-button>
     </div>
       
-    <nav class="nav-trend">
-      <div class="nav-trend__title">Trends</div>
+    ${__isMobile
+      ? null
+      : html`<nav class="nav-trend">
+        <div class="nav-trend__title">Trends</div>
 
-      <div class="nav-trend__trend-card-container">
-        <div class="trend-card">
-          <h3 class="trend-card__title">Tue, Jan 7, 2014</h3>
-          <div class="trend-card__content"></div>
+        <div class="nav-trend__trend-card-container">
+          <div class="trend-card">
+            <h3 class="trend-card__title">Tue, Jan 7, 2014</h3>
+            <div class="trend-card__content"></div>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>`}
 
     <!-- <spendalot-footer>
       <div>Build with ❤️ and Lit-Element</div>
@@ -244,12 +285,15 @@ class SpendalotApp extends connectStore(LitElement) {
       __selectedPage: String,
       __offline: Boolean,
       __snackbarOpened: Boolean,
+      __isMobile: Boolean,
     };
   }
 
   constructor() {
     super();
     setPassiveTouchGestures(true);
+
+    this.__isMobile = false;
   }
 
   _firstRendered() {
@@ -264,6 +308,8 @@ class SpendalotApp extends connectStore(LitElement) {
     });
     installMediaQueryWatcher('(max-width: 500px)', (matches) => {
       console.log({ matches });
+
+      this.__isMobile = matches;
     });
   }
 
